@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -13,8 +14,9 @@
         android:layout_height="wrap_content"
         android:text="JARVIS TV REMOTE CONTROL HOSTER"
         android:textColor="#138BE4"
-        android:textSize="28sp"
+        android:textSize="24sp"
         android:textStyle="bold"
+        android:gravity="center"
         android:layout_marginBottom="24dp"/>
 
     <TextView
@@ -26,18 +28,28 @@
         android:textSize="18sp"
         android:layout_marginBottom="32dp"/>
 
-    <EditText
-        android:id="@+id/pinInputField"
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:hint="Setup Security Passcode"
-        android:textColorHint="#888888"
-        android:textColor="#FFFFFF"
-        android:inputType="textPassword"
-        android:gravity="center"
-        android:backgroundTint="#138BE4"
-        android:layout_marginBottom="16dp"
-        android:focusable="true"/>
+        app:passwordToggleEnabled="true"
+        app:passwordToggleTint="#138BE4"
+        android:layout_marginBottom="24dp"
+        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/pinInputField"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Setup Security Passcode"
+            android:textColorHint="#888888"
+            android:textColor="#FFFFFF"
+            android:background="#2d2d2d"
+            android:inputType="textPassword"
+            android:gravity="start|center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp" />
+
+    </com.google.android.material.textfield.TextInputLayout>
 
     <Button
         android:id="@+id/btnSavePin"

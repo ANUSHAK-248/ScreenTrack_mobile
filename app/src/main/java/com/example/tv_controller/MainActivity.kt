@@ -6,15 +6,13 @@ import android.content.Intent
 import android.media.projection.MediaProjectionManager
 import android.os.Bundle
 import android.widget.Button
-import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : Activity() {
 
     private lateinit var tvStatusLabel: TextView
-    private lateinit var pinInputField: EditText
+    private lateinit var pinInputField: com.google.android.material.textfield.TextInputEditText
     private lateinit var btnSavePin: Button
     private lateinit var btnStartServer: Button
     private val REQUEST_MEDIA_PROJECTION = 2002
@@ -29,19 +27,20 @@ class MainActivity : Activity() {
         btnStartServer = findViewById(R.id.btnStartServer)
 
         btnSavePin.setOnClickListener {
-            val pinText = pinInputField.text.toString().trim()
+            // --- THE CRITICAL FIX: Safe extraction prevents NullPointer crashes ---
+            val pinText = pinInputField.text?.toString()?.trim().orEmpty()
+
             if (pinText.length >= 4) {
                 val hashedResult = SecurityVault.computeMasterHash(pinText)
                 SecurityVault.getPrefs(this).edit().putString("master_hash", hashedResult).apply()
                 Toast.makeText(this, "Master Security H7 Key Saved Successfully", Toast.LENGTH_SHORT).show()
-                pinInputField.text.clear()
+                pinInputField.text?.clear()
             } else {
                 Toast.makeText(this, "PIN must contain at least 4 digits", Toast.LENGTH_SHORT).show()
             }
         }
 
         btnStartServer.setOnClickListener {
-            // Trigger standard system projection safety acceptance warnings on the Sansui viewport screen
             val mpManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
             startActivityForResult(mpManager.createScreenCaptureIntent(), REQUEST_MEDIA_PROJECTION)
         }
