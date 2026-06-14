@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#1e1e1e"
+    android:gravity="center"
+    android:padding="32dp">
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="JARVIS TV REMOTE CONTROL HOSTER"
+        android:textColor="#138BE4"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="24dp"/>
+
+    <TextView
+        android:id="@+id/tvStatusLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Server Status: Offline"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:layout_marginBottom="32dp"/>
+
+    <EditText
+        android:id="@+id/pinInputField"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:hint="Setup Security Passcode"
+        android:textColorHint="#888888"
+        android:textColor="#FFFFFF"
+        android:inputType="textPassword"
+        android:gravity="center"
+        android:backgroundTint="#138BE4"
+        android:layout_marginBottom="16dp"
+        android:focusable="true"/>
+
+    <Button
+        android:id="@+id/btnSavePin"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="SAVE MASTER PIN"
+        android:backgroundTint="#39FF14"
+        android:textColor="#000000"
+        android:textStyle="bold"
+        android:focusable="true"
+        android:layout_marginBottom="12dp"/>
+
+    <Button
+        android:id="@+id/btnStartServer"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="START SERVER ENGINE"
+        android:backgroundTint="#138BE4"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        android:focusable="true"/>
+
+</LinearLayout>
