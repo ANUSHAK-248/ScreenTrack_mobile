@@ -27,9 +27,7 @@ class MainActivity : Activity() {
         btnStartServer = findViewById(R.id.btnStartServer)
 
         btnSavePin.setOnClickListener {
-            // --- THE CRITICAL FIX: Safe extraction prevents NullPointer crashes ---
             val pinText = pinInputField.text?.toString()?.trim().orEmpty()
-
             if (pinText.length >= 4) {
                 val hashedResult = SecurityVault.computeMasterHash(pinText)
                 SecurityVault.getPrefs(this).edit().putString("master_hash", hashedResult).apply()
@@ -41,8 +39,20 @@ class MainActivity : Activity() {
         }
 
         btnStartServer.setOnClickListener {
-            val mpManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
-            startActivityForResult(mpManager.createScreenCaptureIntent(), REQUEST_MEDIA_PROJECTION)
+            if (btnStartServer.text == "START SERVER ENGINE") {
+                val mpManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+                startActivityForResult(mpManager.createScreenCaptureIntent(), REQUEST_MEDIA_PROJECTION)
+            } else {
+                // --- THE KILL BUTTON LOGIC ---
+                val serviceIntent = Intent(this, TvMediaProjectionService::class.java)
+                stopService(serviceIntent)
+
+                btnStartServer.text = "START SERVER ENGINE"
+                btnStartServer.setBackgroundColor(android.graphics.Color.parseColor("#138BE4"))
+                tvStatusLabel.text = "Server Status: Offline"
+                tvStatusLabel.setTextColor(android.graphics.Color.WHITE)
+                Toast.makeText(this, "Server Terminated Safely", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -54,6 +64,11 @@ class MainActivity : Activity() {
                 putExtra("DATA_INTENT", data)
             }
             startService(serviceIntent)
+
+            // Toggle the button state into a kill switch action receiver
+            btnStartServer.text = "KILL HOSTER SERVER"
+            btnStartServer.setBackgroundColor(android.graphics.Color.RED)
+
             tvStatusLabel.text = "Server Status: ACTIVE & BROADCASTING"
             tvStatusLabel.setTextColor(android.graphics.Color.parseColor("#39FF14"))
         }

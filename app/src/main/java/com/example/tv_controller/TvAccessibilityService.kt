@@ -40,31 +40,33 @@ class TvAccessibilityService : AccessibilityService() {
     private fun executeTouchGesture(percentX: Float, percentY: Float) {
         try {
             val displayMetrics = resources.displayMetrics
+
+            // --- THE PORTRAIT ALIGNMENT FIX ---
+            // When held in portrait, the vertical height matches the largest pixel scale layout boundary
             val targetX = percentX * displayMetrics.widthPixels
             val targetY = percentY * displayMetrics.heightPixels
 
-            Log.d(TAG, "Processing touch injection path mapping: Percent($percentX, $percentY) -> Pixels($targetX, $targetY)")
+            Log.d(TAG, "Executing Portrait Injection -> Pixels: X=$targetX, Y=$targetY [Screen Bounds: ${displayMetrics.widthPixels}x${displayMetrics.heightPixels}]")
 
             val path = Path().apply { moveTo(targetX, targetY) }
 
-            // 80ms duration matches standard organic user human latency profiles
-            val stroke = GestureDescription.StrokeDescription(path, 0, 80)
+            val stroke = GestureDescription.StrokeDescription(path, 0, 60) // Reduced to 60ms for Snappier interaction
             val gestureBuilder = GestureDescription.Builder().addStroke(stroke)
 
             dispatchGesture(gestureBuilder.build(), object : AccessibilityService.GestureResultCallback() {
                 override fun onCompleted(gestureDescription: GestureDescription?) {
                     super.onCompleted(gestureDescription)
-                    Log.d(TAG, "Gesture dispatch COMPLETED successfully at destination coordinates.")
+                    Log.d(TAG, "Touch successfully injected at target location.")
                 }
 
                 override fun onCancelled(gestureDescription: GestureDescription?) {
                     super.onCancelled(gestureDescription)
-                    Log.w(TAG, "Gesture dispatch CANCELLED by the OS window manager layer.")
+                    Log.w(TAG, "Touch blocked or cancelled by system window constraints.")
                 }
             }, null)
 
         } catch (e: Exception) {
-            Log.e(TAG, "Exception encountered during gesture dispatch execution: ${e.message}")
+            Log.e(TAG, "Exception during gesture injection handling: ${e.message}")
             e.printStackTrace()
         }
     }
