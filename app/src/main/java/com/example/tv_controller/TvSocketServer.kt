@@ -22,6 +22,7 @@ class TvSocketServer(
     private var activeClientSocket: Socket? = null
     private var dataOutputStream: DataOutputStream? = null
 
+//    called in TvMediaProjectionService.kt . startCoreHosterEngine
     fun startServer() {
         if (isServerRunning) return
         isServerRunning = true
@@ -50,6 +51,7 @@ class TvSocketServer(
         }
     }
 
+//    called in startServer
     private fun runH7AuthenticationHandshake(client: Socket): Boolean {
         try {
             val reader = client.getInputStream().bufferedReader()
@@ -84,6 +86,7 @@ class TvSocketServer(
         return false
     }
 
+//     called in startServer
     private fun listenForIncomingClientCommands(client: Socket) {
         try {
             val reader = client.getInputStream().bufferedReader()
@@ -106,6 +109,7 @@ class TvSocketServer(
         }
     }
 
+//    called in TvMediaProjectionService.kt . startImageProcessingLoop
     fun sendFrameToClient(frameBytes: ByteArray) {
         val outputStream = dataOutputStream
         if (outputStream != null && activeClientSocket?.isClosed == false) {
@@ -121,6 +125,7 @@ class TvSocketServer(
         }
     }
 
+//    called in listenForIncomingClientCommands , sendFrameToClient , stopServer
     fun disconnectActiveClient() {
         try { dataOutputStream?.close() } catch (e: Exception) {}
         try { activeClientSocket?.close() } catch (e: Exception) {}
@@ -129,6 +134,7 @@ class TvSocketServer(
         Log.d(TAG, "Active client link recycled cleanly. Port 9999 ready for fresh reconnection loops.")
     }
 
+//    called in TvMediaProjectionService.kt . onDestroy
     fun stopServer() {
         isServerRunning = false
         disconnectActiveClient()

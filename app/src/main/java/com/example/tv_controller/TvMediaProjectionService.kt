@@ -45,12 +45,19 @@ class TvMediaProjectionService : Service() {
         return START_STICKY
     }
 
+//    called in onStartCommand
     private fun startCoreHosterEngine() {
         isRunning = true
 
         val metrics = resources.displayMetrics
-        val width = 1280
-        val height = 720
+
+        // --- THE ABSOLUTE MARGIN DESTRUCTION FIX ---
+        // Instead of forcing a 1280x720 landscape box, we query the exact
+        // physical dimensions of the phone dynamically.
+        val width = metrics.widthPixels
+        val height = metrics.heightPixels
+
+        android.util.Log.d("MediaProjection", "Native Portrait Capture Initiated: ${width}x${height}")
 
         imageReader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 2)
 
@@ -63,21 +70,20 @@ class TvMediaProjectionService : Service() {
 
         virtualDisplay = mediaProjection?.createVirtualDisplay(
             "TvScreenCapture", width, height, metrics.densityDpi,
-            DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
+            android.hardware.display.DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR or
+                    android.hardware.display.DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC,
             imageReader?.surface, null, null
         )
 
-        // 1. Fire up the unified H7 Auth server on Port 9999
         tvSocketServer = TvSocketServer(this) { percentX, percentY ->
             TvAccessibilityService.injectTouch(percentX, percentY)
         }
         tvSocketServer?.startServer()
 
-        // 2. REPLACED: Port 9998 server socket logic is removed.
-        // We now pipe frames directly into our image processing loop.
         startImageProcessingLoop()
     }
 
+//    called in startCoreHosterEngine
     private fun startImageProcessingLoop() {
         thread {
             try {
@@ -115,6 +121,7 @@ class TvMediaProjectionService : Service() {
         }
     }
 
+//    called in onStartCommand
     private fun setupForegroundNotification() {
         val channelId = "tv_track_channel"
         val channelName = "TvTrack Background Sync"
@@ -132,6 +139,7 @@ class TvMediaProjectionService : Service() {
         startForeground(101, notification)
     }
 
+//    called in startCoreHosterEngine
     override fun onDestroy() {
         super.onDestroy()
         isRunning = false

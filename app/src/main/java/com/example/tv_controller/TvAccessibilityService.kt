@@ -17,6 +17,7 @@ class TvAccessibilityService : AccessibilityService() {
         // Handler tied permanently to the Main UI Thread loop
         private val uiHandler = Handler(Looper.getMainLooper())
 
+//        called in TvMPs . startCoreHosterEngine
         fun injectTouch(x: Float, y: Float) {
             val service = instance
             if (service != null) {
@@ -31,47 +32,37 @@ class TvAccessibilityService : AccessibilityService() {
         }
     }
 
+//  self call
     override fun onServiceConnected() {
         super.onServiceConnected()
         instance = this
         Log.i(TAG, "TvAccessibilityService Connected and Registered.")
     }
 
+//  called in injectTouch
     private fun executeTouchGesture(percentX: Float, percentY: Float) {
         try {
             val displayMetrics = resources.displayMetrics
 
-            // --- THE PORTRAIT ALIGNMENT FIX ---
-            // When held in portrait, the vertical height matches the largest pixel scale layout boundary
+            // Pure universal mapping: Percentages translate directly to destination physical screen pixels
             val targetX = percentX * displayMetrics.widthPixels
             val targetY = percentY * displayMetrics.heightPixels
 
-            Log.d(TAG, "Executing Portrait Injection -> Pixels: X=$targetX, Y=$targetY [Screen Bounds: ${displayMetrics.widthPixels}x${displayMetrics.heightPixels}]")
+            Log.d(TAG, "Universal Injection -> Pixels: X=$targetX, Y=$targetY")
 
             val path = Path().apply { moveTo(targetX, targetY) }
-
-            val stroke = GestureDescription.StrokeDescription(path, 0, 60) // Reduced to 60ms for Snappier interaction
+            val stroke = GestureDescription.StrokeDescription(path, 0, 50)
             val gestureBuilder = GestureDescription.Builder().addStroke(stroke)
 
-            dispatchGesture(gestureBuilder.build(), object : AccessibilityService.GestureResultCallback() {
-                override fun onCompleted(gestureDescription: GestureDescription?) {
-                    super.onCompleted(gestureDescription)
-                    Log.d(TAG, "Touch successfully injected at target location.")
-                }
-
-                override fun onCancelled(gestureDescription: GestureDescription?) {
-                    super.onCancelled(gestureDescription)
-                    Log.w(TAG, "Touch blocked or cancelled by system window constraints.")
-                }
-            }, null)
+            dispatchGesture(gestureBuilder.build(), null, null)
 
         } catch (e: Exception) {
-            Log.e(TAG, "Exception during gesture injection handling: ${e.message}")
             e.printStackTrace()
         }
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {}
+
     override fun onInterrupt() {}
 
     override fun onDestroy() {

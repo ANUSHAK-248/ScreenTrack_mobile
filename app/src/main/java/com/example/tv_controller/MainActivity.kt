@@ -48,7 +48,7 @@ class MainActivity : Activity() {
                 stopService(serviceIntent)
 
                 btnStartServer.text = "START SERVER ENGINE"
-                btnStartServer.setBackgroundColor(android.graphics.Color.parseColor("#138BE4"))
+                btnStartServer.setTextColor(android.graphics.Color.parseColor("#FFFFFF"))
                 tvStatusLabel.text = "Server Status: Offline"
                 tvStatusLabel.setTextColor(android.graphics.Color.WHITE)
                 Toast.makeText(this, "Server Terminated Safely", Toast.LENGTH_SHORT).show()
@@ -67,9 +67,9 @@ class MainActivity : Activity() {
 
             // Toggle the button state into a kill switch action receiver
             btnStartServer.text = "KILL HOSTER SERVER"
-            btnStartServer.setBackgroundColor(android.graphics.Color.RED)
+            btnStartServer.setTextColor(android.graphics.Color.RED)
 
-            tvStatusLabel.text = "Server Status: ACTIVE & BROADCASTING"
+            tvStatusLabel.text = "Server Status: BROADCASTING"
             tvStatusLabel.setTextColor(android.graphics.Color.parseColor("#39FF14"))
         }
     }
