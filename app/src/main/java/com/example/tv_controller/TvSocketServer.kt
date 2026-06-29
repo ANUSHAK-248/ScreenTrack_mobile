@@ -92,12 +92,18 @@ class TvSocketServer(
             val reader = client.getInputStream().bufferedReader()
             while (isServerRunning && !client.isClosed) {
                 val commandLine = reader.readLine() ?: break // Hits break if client loses focus/closes!
+                while (isServerRunning && !client.isClosed) {
+                    val commandLine = reader.readLine() ?: break
 
-                if (commandLine.startsWith("TOUCH:")) {
                     val parts = commandLine.split(":")
-                    val percentX = parts[1].toFloatOrNull() ?: 0f
-                    val percentY = parts[2].toFloatOrNull() ?: 0f
-                    onTouchCommandReceived(percentX, percentY)
+                    if (parts.size == 3) {
+                        val action = parts[0] // Contains "DOWN", "MOVE", or "UP"
+                        val percentX = parts[1].toFloatOrNull() ?: 0f
+                        val percentY = parts[2].toFloatOrNull() ?: 0f
+
+                        // Route directly to your new structural gesture engine
+                        TvAccessibilityService.handleRemoteTouch(action, percentX, percentY)
+                    }
                 }
             }
         } catch (e: Exception) {

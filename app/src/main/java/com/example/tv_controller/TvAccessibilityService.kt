@@ -12,6 +12,9 @@ import android.view.WindowManager
 
 class TvAccessibilityService : AccessibilityService() {
 
+    private var swipePath: Path? = null
+    private var isDragging = false
+
     companion object {
         private const val TAG = "TvAccessibilityService"
         private var instance: TvAccessibilityService? = null
@@ -21,15 +24,47 @@ class TvAccessibilityService : AccessibilityService() {
 
 //        called in TvMPs . startCoreHosterEngine
         fun injectTouch(x: Float, y: Float) {
-            val service = instance
-            if (service != null) {
-                // --- THE CRITICAL PATCH ---
-                // Forces execution onto the Main UI Thread to pass Android Security
-                uiHandler.post {
-                    service.executeTouchGesture(x, y)
+            instance?.let { service ->
+                uiHandler.post { service.processGesture("DOWN", x, y) }
+                uiHandler.post { service.processGesture("UP", x, y) }
+            }
+        }
+
+        fun handleRemoteTouch(action: String, x: Float, y: Float) {
+            instance?.let { service ->
+                uiHandler.post { service.processGesture(action, x, y) }
+            }
+        }
+    }
+
+//    called in companion object
+    private fun processGesture(action: String, percentX: Float, percentY: Float) {
+        val wm = getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val metrics = android.util.DisplayMetrics()
+        wm.defaultDisplay.getRealMetrics(metrics)
+
+        val targetX = percentX * metrics.widthPixels
+        val targetY = percentY * metrics.heightPixels
+
+        when (action) {
+            "DOWN" -> {
+                swipePath = Path().apply { moveTo(targetX, targetY) }
+                isDragging = true
+            }
+            "MOVE" -> {
+                if (isDragging) {
+                    swipePath?.lineTo(targetX, targetY)
                 }
-            } else {
-                Log.w(TAG, "Cannot inject touch! TvAccessibilityService instance is NULL. Ensure service is enabled in Android Settings.")
+            }
+            "UP" -> {
+                if (isDragging) {
+                    // Finalize the gesture
+                    val stroke = GestureDescription.StrokeDescription(swipePath!!, 0, 100)
+                    val builder = GestureDescription.Builder().addStroke(stroke)
+                    dispatchGesture(builder.build(), null, null)
+                    isDragging = false
+                    swipePath = null
+                }
             }
         }
     }
