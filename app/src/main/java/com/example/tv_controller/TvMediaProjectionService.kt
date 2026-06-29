@@ -49,7 +49,10 @@ class TvMediaProjectionService : Service() {
     private fun startCoreHosterEngine() {
         isRunning = true
 
-        val metrics = resources.displayMetrics
+
+        val windowManager = getSystemService(Context.WINDOW_SERVICE) as android.view.WindowManager
+        val metrics = android.util.DisplayMetrics()
+        windowManager.defaultDisplay.getRealMetrics(metrics)
 
         // --- THE ABSOLUTE MARGIN DESTRUCTION FIX ---
         // Instead of forcing a 1280x720 landscape box, we query the exact

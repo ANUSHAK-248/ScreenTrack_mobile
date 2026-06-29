@@ -7,6 +7,8 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
+import android.content.Context
+import android.view.WindowManager
 
 class TvAccessibilityService : AccessibilityService() {
 
@@ -42,11 +44,13 @@ class TvAccessibilityService : AccessibilityService() {
 //  called in injectTouch
     private fun executeTouchGesture(percentX: Float, percentY: Float) {
         try {
-            val displayMetrics = resources.displayMetrics
+            val windowManager = getSystemService(Context.WINDOW_SERVICE) as android.view.WindowManager
+            val metrics = android.util.DisplayMetrics()
+            windowManager.defaultDisplay.getRealMetrics(metrics)
 
             // Pure universal mapping: Percentages translate directly to destination physical screen pixels
-            val targetX = percentX * displayMetrics.widthPixels
-            val targetY = percentY * displayMetrics.heightPixels
+            val targetX = percentX * metrics.widthPixels
+            val targetY = percentY * metrics.heightPixels
 
             Log.d(TAG, "Universal Injection -> Pixels: X=$targetX, Y=$targetY")
 
